@@ -1,0 +1,67 @@
+img{
+  width: 40px;
+  height: 40px;
+  align-items: center;
+}
+
+.ReactModal__Overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.ReactModal__Content {
+  position: relative;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  animation: slide-down 0.3s ease-out;
+  margin: 20px;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.close-button:focus {
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .ReactModal__Content {
+    padding: 15px;
+    font-size: 0.9rem;
+  }
+
+  .close-button {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ReactModal__Content {
+    padding: 10px;
+    font-size: 0.8rem;
+    width: 300px;
+  }
+
+  .close-button {
+    font-size: 1rem;
+  }
+}
