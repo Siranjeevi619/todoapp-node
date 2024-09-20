@@ -33,10 +33,16 @@ function Task() {
           customClass: {
             confirmButton: "btn btn-primary",
           },
-        });
+        })
+
+          .then(() => {
+            toast("task edit successfully");
+          })
+          .catch((e) => {
+            toast(e.message);
+          });
       }
     });
-    toast("Editing task...");
   };
 
   const handleRemove = () => {
