@@ -63,4 +63,20 @@ const UpdateTask = async (req, res) => {
   }
 };
 
-module.exports = { AddTask, ReadTask, UpdateTask };
+const DeleteTask = async (req, res) => {
+  try {
+    const { id } = req.body;
+    const taskToDelete = await taskModel.findByIdAndDelete(
+      {
+        _id: id,
+      }
+      // { taskName: name, taskDescription: description }
+    );
+    console.log(taskToDelete);
+    return res.status(200).json({ message: "Movie deleted successfully" });
+  } catch (e) {
+    return res.status(500).json({ message: e.message });
+  }
+};
+
+module.exports = { AddTask, ReadTask, UpdateTask, DeleteTask };
