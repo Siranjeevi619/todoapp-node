@@ -4,15 +4,17 @@ import "../assets/styles/Task.css";
 import toast, { Toaster } from "react-hot-toast";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import TaskDetails from "../components/TaskDetails";
-import TaskActions from "../components/TaskAction";
-import TaskModal from "../components/TaskModal";
+import TaskDetails from "./TaskDetails";
+import TaskActions from "./TaskAction";
+import TaskModal from "./TaskModal";
 
 const MySwal = withReactContent(Swal);
 
-function Task() {
-  const [taskName, setTaskName] = useState("");
-  const [descriptionValue, setDescriptionValue] = useState("");
+function Task(props) {
+  const [taskName, setTaskName] = useState(props.name || "");
+  const [descriptionValue, setDescriptionValue] = useState(
+    props.description || ""
+  );
 
   const handleSuccess = () => {
     toast.success("Task completed successfully");
@@ -34,12 +36,11 @@ function Task() {
             confirmButton: "btn btn-primary",
           },
         })
-
           .then(() => {
-            toast("task edit successfully");
+            toast.success("Task edited successfully");
           })
           .catch((e) => {
-            toast(e.message);
+            toast.error(e.message);
           });
       }
     });

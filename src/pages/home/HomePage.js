@@ -1,17 +1,84 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../../assets/styles/Modal.css";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 import Task from "../../components/Task";
+
 function HomePage() {
   const [taskName, setTaskName] = useState("");
-  const [descriptionValue, setDescriptionValue] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
+  const [tasks, setTasks] = useState([]);
 
   const MySwal = withReactContent(Swal);
 
+  useEffect(() => {
+    fetch("http://localhost:9000/task/")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch tasks.");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setTasks(data.allTask);
+      })
+      .catch((e) => {
+        console.error("Error fetching tasks:", e.message);
+      });
+  }, []);
+
+  const handleNewTask = async () => {
+    // Validate fields
+    if (taskName === "" || taskDescription === "") {
+      MySwal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please fill out both fields!",
+      });
+      return;
+    }
+
+    try {
+      const data = {
+        taskName,
+        taskDescription,
+      };
+      const response = await fetch("http://localhost:9000/task/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add task.");
+      }
+
+      const newTask = await response.json();
+      setTasks((prevTasks) => [...prevTasks, newTask]);
+
+      setTaskName("");
+      setTaskDescription("");
+
+      MySwal.fire({
+        title: "Task Added",
+        text: `Task: ${newTask.taskName}\nDescription: ${newTask.taskDescription}`,
+        icon: "success",
+        confirmButtonText: "OK",
+        buttonsStyling: false,
+        customClass: {
+          confirmButton: "btn btn-primary",
+        },
+      });
+    } catch (error) {
+      console.error("Error adding task:", error.message);
+    }
+  };
+
   const showModal = () => {
     MySwal.fire({
-      title: <h4 className="text-primary">Add New Task</h4>,
+      title: <p className="h2 text-primary">Add New Task</p>,
       html: (
         <div className="container">
           <div className="form-floating mb-3">
@@ -29,8 +96,8 @@ function HomePage() {
               id="description"
               className="form-control"
               placeholder="Task Description"
-              defaultValue={descriptionValue}
-              style={{ height: "100px" }}
+              defaultValue={taskDescription}
+              style={{ height: "120px" }}
             />
             <label htmlFor="description">Description</label>
           </div>
@@ -46,34 +113,24 @@ function HomePage() {
         actions: "my-2 d-flex justify-content-center",
       },
       preConfirm: () => {
-        const taskNameInput = document.getElementById("task-name").value;
-        const descriptionInput = document.getElementById("description").value;
+        // Fetch input values directly from the modal
+        const taskNameValue = document.getElementById("task-name").value.trim();
+        const taskDescriptionValue = document
+          .getElementById("description")
+          .value.trim();
 
-        if (!taskNameInput || !descriptionInput) {
+        if (taskNameValue === "" || taskDescriptionValue === "") {
           Swal.showValidationMessage("Please fill out both fields");
           return false;
         }
 
-        return {
-          taskName: taskNameInput,
-          description: descriptionInput,
-        };
+        // Update the state with the values obtained
+        setTaskName(taskNameValue);
+        setTaskDescription(taskDescriptionValue);
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        setTaskName(result.value.taskName);
-        setDescriptionValue(result.value.description);
-
-        MySwal.fire({
-          title: "Task Added",
-          text: `Task: ${result.value.taskName}\nDescription: ${result.value.description}`,
-          icon: "success",
-          confirmButtonText: "OK",
-          buttonsStyling: false,
-          customClass: {
-            confirmButton: "btn btn-primary", 
-          },
-        });
+        handleNewTask();
       }
     });
   };
@@ -83,7 +140,7 @@ function HomePage() {
       <div className="container">
         <div className="row">
           <div className="col-12 col-md-2"></div>
-          <div className="col-12 col-md-8">
+          <div className="col-12 col-lg-8">
             <div className="text-center my-md-4 my-3">
               <h2>Hello Steve</h2>
               <p className="text-center">
@@ -96,10 +153,13 @@ function HomePage() {
                 </button>
               </div>
               <div className="my-md-2 my-1">
-                <Task name={taskName} description={descriptionValue} />
-                <Task name={taskName} description={descriptionValue} />
-                <Task name={taskName} description={descriptionValue} />
-                <Task name={taskName} description={descriptionValue} />
+                {tasks.map((task) => (
+                  <Task
+                    key={task._id}
+                    name={task.taskName}
+                    description={task.taskDescription}
+                  />
+                ))}
               </div>
             </div>
           </div>

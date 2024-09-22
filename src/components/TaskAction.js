@@ -1,9 +1,8 @@
-// src/components/TaskActions.js
 import React from "react";
 
 function TaskActions({ onEdit, onSuccess, onRemove }) {
   return (
-    <div className="col-md-4 col-12 bg-white d-flex justify-content-around align-items-center p-md-2 pb-2">
+    <div className="col-md-5 col-12 bg-white d-flex justify-content-around align-items-center p-md-2 pb-2">
       <button
         className="btn btn-success btn-sm"
         onClick={onSuccess}
