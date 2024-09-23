@@ -1,4 +1,3 @@
-// src/components/Task.js
 import React, { useState } from "react";
 import "../assets/styles/Task.css";
 import toast, { Toaster } from "react-hot-toast";
@@ -6,13 +5,17 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import TaskDetails from "./TaskDetails";
 import TaskActions from "./TaskAction";
-import TaskModal from "./TaskModal";
+import TaskInputModal from "./TaskInputModal";
 
 const MySwal = withReactContent(Swal);
 
 function Task(props) {
+  const taskFunctionality = {
+    func:
+  };
+  const [modalIsOpen, setModalIsOpen] = useState(false);
   const [taskName, setTaskName] = useState(props.name || "");
-  const [descriptionValue, setDescriptionValue] = useState(
+  const [descriptionValue, setTaskDescription] = useState(
     props.description || ""
   );
 
@@ -21,29 +24,44 @@ function Task(props) {
   };
 
   const handleEdit = () => {
-    TaskModal(MySwal, taskName, descriptionValue).then((result) => {
-      if (result.isConfirmed) {
-        setTaskName(result.value.taskName);
-        setDescriptionValue(result.value.description);
+    setModalIsOpen(true);
+  };
 
-        MySwal.fire({
-          title: "Task Updated",
-          text: `Task: ${result.value.taskName}\nDescription: ${result.value.description}`,
-          icon: "success",
-          confirmButtonText: "OK",
-          buttonsStyling: false,
-          customClass: {
-            confirmButton: "btn btn-primary",
-          },
-        })
-          .then(() => {
-            toast.success("Task edited successfully");
-          })
-          .catch((e) => {
-            toast.error(e.message);
-          });
+  const addNewTask = async () => {
+    if (taskName === "" || descriptionValue === "") {
+      MySwal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please fill out both fields!",
+      });
+      return;
+    }
+    try {
+      const data = {
+        taskName,
+        descriptionValue,
+      };
+      const taskId = props.id;
+      const response = await fetch(`http://localhost:9000/task/${taskId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update Task");
       }
-    });
+
+      const updatedTaskResponse = await response.json();
+      console.log(updatedTaskResponse.status);
+      toast.success("task update successfully");
+      setModalIsOpen(false);
+    } catch (e) {
+      toast.error(e.message);
+      console.log(e.message);
+    }
   };
 
   const handleRemove = () => {
@@ -53,6 +71,16 @@ function Task(props) {
   return (
     <div className="card mb-3 shadow-sm border border-dark-subtle">
       <Toaster />
+      <TaskInputModal
+        open={modalIsOpen}
+        taskFunctionality={taskFunctionality}
+        onClose={() => setModalIsOpen(false)}
+        addNewTask={addNewTask}
+        taskName={taskName}
+        taskDescription={descriptionValue}
+        setTaskName={setTaskName}
+        setTaskDescription={setTaskDescription}
+      />
       <div className="row g-0">
         <TaskDetails taskName={taskName} description={descriptionValue} />
         <TaskActions

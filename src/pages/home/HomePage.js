@@ -3,11 +3,15 @@ import "../../assets/styles/Modal.css";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 import Task from "../../components/Task";
+import TaskInputModal from "../../components/TaskInputModal";
 
 function HomePage() {
+  const taskFunctionality = "Add new Task";
+
   const [taskName, setTaskName] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
   const [tasks, setTasks] = useState([]);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const MySwal = withReactContent(Swal);
 
@@ -28,7 +32,6 @@ function HomePage() {
   }, []);
 
   const handleNewTask = async () => {
-    // Validate fields
     if (taskName === "" || taskDescription === "") {
       MySwal.fire({
         icon: "error",
@@ -71,73 +74,26 @@ function HomePage() {
           confirmButton: "btn btn-primary",
         },
       });
+
+      setModalIsOpen(false);
     } catch (error) {
       console.error("Error adding task:", error.message);
     }
   };
 
-  const showModal = () => {
-    MySwal.fire({
-      title: <p className="h2 text-primary">Add New Task</p>,
-      html: (
-        <div className="container">
-          <div className="form-floating mb-3">
-            <input
-              type="text"
-              id="task-name"
-              className="form-control"
-              placeholder="Task Name"
-              defaultValue={taskName}
-            />
-            <label htmlFor="task-name">Task Name</label>
-          </div>
-          <div className="form-floating mb-3">
-            <textarea
-              id="description"
-              className="form-control"
-              placeholder="Task Description"
-              defaultValue={taskDescription}
-              style={{ height: "120px" }}
-            />
-            <label htmlFor="description">Description</label>
-          </div>
-        </div>
-      ),
-      showCancelButton: true,
-      confirmButtonText: "Add Task",
-      cancelButtonText: "Cancel",
-      buttonsStyling: false,
-      customClass: {
-        confirmButton: "btn btn-success mx-2",
-        cancelButton: "btn btn-danger mx-2",
-        actions: "my-2 d-flex justify-content-center",
-      },
-      preConfirm: () => {
-        // Fetch input values directly from the modal
-        const taskNameValue = document.getElementById("task-name").value.trim();
-        const taskDescriptionValue = document
-          .getElementById("description")
-          .value.trim();
-
-        if (taskNameValue === "" || taskDescriptionValue === "") {
-          Swal.showValidationMessage("Please fill out both fields");
-          return false;
-        }
-
-        // Update the state with the values obtained
-        setTaskName(taskNameValue);
-        setTaskDescription(taskDescriptionValue);
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        handleNewTask();
-      }
-    });
-  };
-
   return (
     <div className="home-page">
       <div className="container">
+        <TaskInputModal
+          open={modalIsOpen}
+          taskFunctionality={taskFunctionality}
+          onClose={() => setModalIsOpen(false)}
+          onAddTask={handleNewTask}
+          taskName={taskName}
+          setTaskName={setTaskName}
+          taskDescription={taskDescription}
+          setTaskDescription={setTaskDescription}
+        />
         <div className="row">
           <div className="col-12 col-md-2"></div>
           <div className="col-12 col-lg-8">
@@ -148,7 +104,10 @@ function HomePage() {
                 <span className="text-primary">consistency</span>
               </p>
               <div className="text-center text-md-end">
-                <button className="btn btn-primary" onClick={showModal}>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setModalIsOpen(true)}
+                >
                   Add Task <i className="bi bi-plus fw-bold"></i>
                 </button>
               </div>
