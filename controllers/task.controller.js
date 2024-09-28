@@ -1,4 +1,6 @@
+const Task = require("../model/task.model.js");
 const taskModel = require("../model/task.model.js");
+const mongoose = require("mongoose");
 
 const AddTask = async (req, res) => {
   try {
@@ -34,25 +36,37 @@ const ReadTask = async (req, res) => {
 
 const UpdateTask = async (req, res) => {
   try {
-    const { id } = req.params;
-    if (!req.body) {
-      return res.status(400).json({ message: "Request body is missing" });
+    console.log("Request body:", req.body);
+    console.log("Task ID:", req.params.id);
+
+    const { taskName, taskDescription } = req.body;
+
+    if (!taskName || !taskDescription) {
+      return res
+        .status(400)
+        .json({ message: "Task name and description are required" });
     }
-    const taskToUpdate = await taskModel.findByIdAndUpdate(
-      id,
+
+    const taskToUpdate = await taskModel.findOneAndUpdate(
+      { _id: req.params.id },
       {
-        taskName: req.body.name,
-        taskDescription: req.body.description,
+        taskName,
+        taskDescription,
       },
       { new: true }
     );
 
     if (!taskToUpdate) {
+      console.log("Task not found");
       return res.status(404).json({ message: "Task not found" });
     }
 
-    return res.status(200).json({ taskToUpdate });
+    console.log("Updated task:", taskToUpdate);
+    return res
+      .status(200)
+      .json({ message: "Task updated successfully", taskToUpdate });
   } catch (e) {
+    console.error("Error updating task:", e.message);
     return res.status(500).json({ message: e.message });
   }
 };
