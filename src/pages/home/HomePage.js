@@ -112,9 +112,10 @@ function HomePage() {
                 </button>
               </div>
               <div className="my-md-2 my-1">
-                {tasks.map((task) => (
+                {tasks.map((task, index) => (
                   <Task
-                    key={task._id}
+                    key={index}
+                    id={task._id}
                     name={task.taskName}
                     description={task.taskDescription}
                   />

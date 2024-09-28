@@ -11,7 +11,8 @@ const MySwal = withReactContent(Swal);
 
 function Task(props) {
   const taskFunctionality = {
-    func:
+    func: "update task",
+    btnValue: "update",
   };
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [taskName, setTaskName] = useState(props.name || "");
@@ -24,10 +25,13 @@ function Task(props) {
   };
 
   const handleEdit = () => {
+    console.log(props);
+
+    console.log("edit button clicked");
     setModalIsOpen(true);
   };
 
-  const addNewTask = async () => {
+  const onAddTask = async () => {
     if (taskName === "" || descriptionValue === "") {
       MySwal.fire({
         icon: "error",
@@ -36,13 +40,19 @@ function Task(props) {
       });
       return;
     }
+
     try {
       const data = {
         taskName,
-        descriptionValue,
+        taskDescription: descriptionValue, 
       };
-      const taskId = props.id;
-      const response = await fetch(`http://localhost:9000/task/${taskId}`, {
+
+      const taskId = props.id; 
+      const putUrl = `http://localhost:9000/task/${taskId}`; 
+      console.log("PUT URL:", putUrl);
+      console.log("Data sent:", data);
+
+      const response = await fetch(putUrl, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -55,12 +65,12 @@ function Task(props) {
       }
 
       const updatedTaskResponse = await response.json();
-      console.log(updatedTaskResponse.status);
-      toast.success("task update successfully");
+      console.log("Updated task response:", updatedTaskResponse); 
+      toast.success("Task updated successfully");
       setModalIsOpen(false);
     } catch (e) {
       toast.error(e.message);
-      console.log(e.message);
+      console.log("Error:", e.message);
     }
   };
 
@@ -73,10 +83,11 @@ function Task(props) {
       <Toaster />
       <TaskInputModal
         open={modalIsOpen}
-        taskFunctionality={taskFunctionality}
+        addNewTask={onAddTask}
         onClose={() => setModalIsOpen(false)}
-        addNewTask={addNewTask}
         taskName={taskName}
+        taskFunctionality={taskFunctionality.func}
+        btnValue={taskFunctionality.btnValue}
         taskDescription={descriptionValue}
         setTaskName={setTaskName}
         setTaskDescription={setTaskDescription}

@@ -7,12 +7,13 @@ const TaskInputModal = (props) => {
   const {
     open,
     onClose,
-    onAddTask,
+    addNewTask, 
     taskName,
     setTaskName,
     taskDescription,
     setTaskDescription,
     taskFunctionality,
+    btnValue,
   } = props;
 
   return (
@@ -73,9 +74,9 @@ const TaskInputModal = (props) => {
                 <button
                   type="button"
                   className="btn btn-primary me-2 shadow-sm"
-                  onClick={onAddTask}
+                  onClick={addNewTask} 
                 >
-                  Add Task
+                  {btnValue ? btnValue : "Add "}
                 </button>
                 <button
                   type="button"
